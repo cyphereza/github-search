@@ -1,25 +1,23 @@
 import React from 'react';
 import './App.css';
 import SearchInput from './component/searchinput';
+import SearchOutput from './component/searchoutput';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
 
+    this.searchOutputRef = React.createRef();
+
     this.state = {
-      perPage: 10,
       query: '',
-      currentPage: 0,
     };
   }
 
   handleSubmit = callback => {
+    console.log('Handle Submit in App, query = ' + callback);
     this.setState({ query: callback });
-  };
-
-  showQuery = () => {
-    if (this.state.query !== '') return <div>{this.state.query}</div>;
-    return null;
+    this.searchOutputRef.current.changeQuery(callback);
   };
 
   render() {
@@ -27,7 +25,7 @@ class App extends React.Component {
       <div className="App">
         <div className="container-fluid bg-white border p-3">
           <SearchInput onSubmit={this.handleSubmit} />
-          {this.showQuery()}
+          <SearchOutput ref={this.searchOutputRef} />
         </div>
       </div>
     );

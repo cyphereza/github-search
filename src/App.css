@@ -29,7 +29,23 @@
 }
 
 .iconColor {
-  color: rgb(231, 233, 236);
+  color: rgb(200, 200, 200);
+}
+
+input::-webkit-input-placeholder {
+  color: rgb(200, 200, 200) !important;
+}
+   
+input:-moz-placeholder { /* Firefox 18- */
+  color: rgb(200, 200, 200) !important;  
+}
+  
+input::-moz-placeholder {  /* Firefox 19+ */
+  color: rgb(200, 200, 200) !important;  
+}
+  
+input:-ms-input-placeholder {  
+  color: rgb(200, 200, 200) !important;  
 }
 
 @keyframes App-logo-spin {
