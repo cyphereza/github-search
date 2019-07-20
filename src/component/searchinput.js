@@ -8,9 +8,14 @@ class SearchInput extends React.Component {
     this.state = { searchQuery: '' };
   }
 
+  setSearchQuery = searchQuery => {
+    this.setState({ searchQuery });
+  };
+
   handleSubmit = event => {
     event.preventDefault();
     this.props.onSubmit(this.state.searchQuery);
+    console.log('onSubmit');
   };
 
   handleChange = event => {
