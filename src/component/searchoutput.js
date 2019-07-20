@@ -44,6 +44,27 @@ class SearchOutput extends React.Component {
         '&page=' +
         this.state.currentPage;
       let response = await httpService.get(url);
+      if (response.data.items.length === 0 && this.state.currentPage > 1) {
+        console.log('Search again?');
+        url =
+          API.endpoints.searchRepositories +
+          '?q=' +
+          this.state.searchQuery +
+          '&per_page=' +
+          this.state.perPage +
+          '&page=' +
+          1;
+        await this.setState({ currentPage: 1 }, async () => {
+          response = await httpService.get(url);
+          await this.setState({
+            responseData: response.data,
+            isLoaded: true,
+            totalSearchResults: response.data.total_count,
+          });
+          window.history.pushState('string', 'Github Search', '?q=' + this.state.searchQuery + '&page=1');
+          return;
+        });
+      }
       await this.setState({
         responseData: response.data,
         isLoaded: true,
