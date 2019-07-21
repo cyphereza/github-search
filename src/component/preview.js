@@ -50,7 +50,9 @@ class Preview extends React.Component {
   };
 
   handleReadmeDisplay = () => {
-    return <div className="p-3">{this.state.readme && <ReactMarkdown source={this.state.readme} />}</div>;
+    return (
+      <div className="p-3">{this.state.readme && <ReactMarkdown source={this.state.readme} escapeHtml={false} />}</div>
+    );
   };
 
   render() {
