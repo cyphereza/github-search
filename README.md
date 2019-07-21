@@ -1,5 +1,15 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Tested with
+- node 11.11.0
+- npm 6.7.0
+- yarn 1.15.2
+
+## How to test
+- Run `git clone https://github.com/cyphereza/github-search.git`
+- Run `npm install` or `yarn install`
+- Run `npm start` or `yarn start`
+
 ## Available Scripts
 
 In the project directory, you can run:
