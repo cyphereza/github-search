@@ -49,6 +49,7 @@ class App extends React.Component {
   };
 
   doSearch = async () => {
+    await this.paginationRef.current.setPaginationVariables(0, 0, 10);
     await this.searchOutputRef.current
       .setSearchQuery(this.state.query, this.state.currentPage)
       .then(() => {

@@ -117,7 +117,7 @@ class SearchOutput extends React.Component {
         </div>
       );
     }
-    if (this.state.responseData !== null) {
+    if (this.state.responseData !== null && this.state.isLoaded) {
       let keyLength = this.state.responseData.items.length;
       return (
         <div className="container-fluid text-left p-0">
