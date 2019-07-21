@@ -42,7 +42,6 @@ class App extends React.Component {
     if (query === '') {
       return;
     }
-    console.log('Handle Submit in App, query = ' + query);
     this.setState({ query, currentPage: 1 }, () => {
       this.doSearch();
       window.history.pushState('string', 'Github Search', '?q=' + query + '&page=' + this.state.currentPage);
@@ -50,8 +49,7 @@ class App extends React.Component {
   };
 
   doSearch = async () => {
-    console.log('Do search...');
-    console.log('Searching for ' + this.state.query);
+    await this.paginationRef.current.setPaginationVariables(0, 0, 10);
     await this.searchOutputRef.current
       .setSearchQuery(this.state.query, this.state.currentPage)
       .then(() => {

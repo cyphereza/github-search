@@ -1,6 +1,7 @@
 import React from 'react';
 import { httpService } from '../services';
 import { API } from '../constant';
+import octocat from '../assets/images/octocat.png';
 
 class SearchOutput extends React.Component {
   constructor(props) {
@@ -19,7 +20,6 @@ class SearchOutput extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.searchQuery !== this.state.searchQuery && prevState.currentPage !== this.state.currentPage) {
-      console.log('Proceed to searching repos...');
       this.searchRepositories();
     }
   }
@@ -30,8 +30,6 @@ class SearchOutput extends React.Component {
   };
 
   searchRepositories = async () => {
-    console.log('Searching repo with query ' + this.state.searchQuery);
-
     if (this.state.searchQuery !== '' || this.state.searchQuery !== null) {
       this.setState({ isLoaded: false });
       var url =
@@ -44,7 +42,6 @@ class SearchOutput extends React.Component {
         this.state.currentPage;
       let response = await httpService.get(url);
       if (response.data.items.length === 0 && this.state.currentPage > 1) {
-        console.log('Search again?');
         url =
           API.endpoints.searchRepositories +
           '?q=' +
@@ -107,7 +104,20 @@ class SearchOutput extends React.Component {
   };
 
   render() {
-    if (this.state.responseData !== null) {
+    if (
+      (this.state.responseData === null || this.state.responseData.items.length === 0) &&
+      this.state.totalSearchResults === 0 &&
+      this.state.isLoaded === true
+    ) {
+      return (
+        <div className="container-fluid p-0 text-center">
+          <h2 className="font-weight-bold fluid-text">The results you're looking for is not here...</h2>
+          <br />
+          <img src={octocat} alt="Octocat, no results!" className="img-fluid octocat" />
+        </div>
+      );
+    }
+    if (this.state.responseData !== null && this.state.isLoaded) {
       let keyLength = this.state.responseData.items.length;
       return (
         <div className="container-fluid text-left p-0">

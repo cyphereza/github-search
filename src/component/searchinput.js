@@ -15,7 +15,6 @@ class SearchInput extends React.Component {
   handleSubmit = event => {
     event.preventDefault();
     this.props.onSubmit(this.state.searchQuery);
-    console.log('onSubmit');
   };
 
   handleChange = event => {
