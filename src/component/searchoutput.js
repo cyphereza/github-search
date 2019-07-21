@@ -1,6 +1,7 @@
 import React from 'react';
 import { httpService } from '../services';
 import { API } from '../constant';
+import octocat from '../assets/images/octocat.png';
 
 class SearchOutput extends React.Component {
   constructor(props) {
@@ -107,6 +108,15 @@ class SearchOutput extends React.Component {
   };
 
   render() {
+    if (this.state.responseData === null || this.state.responseData.items.length === 0) {
+      return (
+        <div className="container-fluid p-0 text-center">
+          <h2 className="font-weight-bold fluid-text">The results you're looking for is not here...</h2>
+          <br />
+          <img src={octocat} alt="Octocat, no results!" className="img-fluid octocat" />
+        </div>
+      );
+    }
     if (this.state.responseData !== null) {
       let keyLength = this.state.responseData.items.length;
       return (

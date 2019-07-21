@@ -106,3 +106,39 @@ input:-ms-input-placeholder {
 
 /* Add a grey background color on mouse-over */
 .pagination a:hover:not(.active):not(.inactive) {background-color: #ddd;}
+
+@media screen and (min-width: 100px){
+  .octocat {
+    margin-bottom: 50px;
+    width: 100px;
+  }
+
+  .fluid-text {
+    margin-top: 20px;
+    font-size: 1.5em;
+  }
+}
+
+@media screen and (min-width: 483px){
+  .octocat {
+    margin-bottom: 50px;
+    width: 200px;
+  }
+
+  .fluid-text {
+    margin-top: 20px;
+    font-size: 1.5em;
+  }
+}
+
+@media screen and (min-width: 600px){
+  .octocat {
+    margin-bottom: 50px;
+    width: 300px;
+  }
+
+  .fluid-text {
+    margin-top: 20px;
+    font-size: 1.8em;
+  }
+}
