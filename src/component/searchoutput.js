@@ -13,12 +13,11 @@ class SearchOutput extends React.Component {
       totalSearchResults: 0,
       responseData: null,
       isLoaded: false,
+      mouseHover: false,
     };
   }
 
   componentDidUpdate(prevProps, prevState) {
-    console.log('Prev: ', prevState);
-    console.log('Current: ', this.state);
     if (prevState.searchQuery !== this.state.searchQuery && prevState.currentPage !== this.state.currentPage) {
       console.log('Proceed to searching repos...');
       this.searchRepositories();
@@ -44,6 +43,27 @@ class SearchOutput extends React.Component {
         '&page=' +
         this.state.currentPage;
       let response = await httpService.get(url);
+      if (response.data.items.length === 0 && this.state.currentPage > 1) {
+        console.log('Search again?');
+        url =
+          API.endpoints.searchRepositories +
+          '?q=' +
+          this.state.searchQuery +
+          '&per_page=' +
+          this.state.perPage +
+          '&page=' +
+          1;
+        await this.setState({ currentPage: 1 }, async () => {
+          response = await httpService.get(url);
+          await this.setState({
+            responseData: response.data,
+            isLoaded: true,
+            totalSearchResults: response.data.total_count,
+          });
+          window.history.pushState('string', 'Github Search', '?q=' + this.state.searchQuery + '&page=1');
+          return;
+        });
+      }
       await this.setState({
         responseData: response.data,
         isLoaded: true,
@@ -84,6 +104,7 @@ class SearchOutput extends React.Component {
 
   render() {
     if (this.state.responseData !== null) {
+      let keyLength = this.state.responseData.items.length;
       return (
         <div className="container-fluid text-left p-0">
           <h5 className="font-weight-bold border-bottom pt-3 pb-3">
@@ -91,22 +112,24 @@ class SearchOutput extends React.Component {
           </h5>
           {this.state.responseData.items.map((resultObj, key) => {
             return (
-              <div key={key}>
-                <div className="row">
-                  <div className="col text-primary font-weight-bold d-inline-block mb-2">
-                    {this.trimString(resultObj.full_name, 70)}
-                  </div>
-                  <div className="d-inline-block" style={{ width: 200 }}>
-                    {this.showLanguage(resultObj.language)}
-                    <div className="small d-inline-block greyColor" style={{ width: 100 }}>
-                      <i className="fa fa-star greyColor pr-1" />
-                      {resultObj.stargazers_count > 0 ? resultObj.stargazers_count : 0}
+              <div key={key} className="hover-mouse">
+                <div className="hover-mouse hover-mouse--on p-2">
+                  <div className="row">
+                    <div className="col text-primary font-weight-bold d-inline-block mb-2">
+                      {this.trimString(resultObj.full_name, 70)}
+                    </div>
+                    <div className="d-inline-block" style={{ width: 200 }}>
+                      {this.showLanguage(resultObj.language)}
+                      <div className="small d-inline-block greyColor" style={{ width: 100 }}>
+                        <i className="fa fa-star greyColor pr-1" />
+                        {resultObj.stargazers_count > 0 ? resultObj.stargazers_count : 0}
+                      </div>
                     </div>
                   </div>
+                  <div className="mb-4">{resultObj.description && this.trimString(resultObj.description, 500)}</div>
+                  <div className="text-muted small">Updated on {this.parseDate(resultObj.updated_at)}</div>
                 </div>
-                <div className="mb-4">{this.trimString(resultObj.description, 500)}</div>
-                <div className="text-muted small">Updated on {this.parseDate(resultObj.updated_at)}</div>
-                {key < 9 && <hr />}
+                {key < 9 && key !== keyLength - 1 && <hr />}
               </div>
             );
           })}

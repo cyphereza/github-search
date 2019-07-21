@@ -33,6 +33,7 @@ class App extends React.Component {
       this.setState({ query, currentPage }, () => {
         this.searchInputRef.current.setSearchQuery(query, currentPage); // Set the input box to URL param's q value
         this.doSearch();
+        window.history.pushState('string', 'Github Search', '?q=' + query + '&page=' + this.state.currentPage);
       });
     }
   };
@@ -59,6 +60,16 @@ class App extends React.Component {
       .then(() => {
         this.paginationRef.current.setPaginationVariables(this.state.totalSearchResults, this.state.currentPage, 10);
       });
+  };
+
+  handlePageChange = async pageNumber => {
+    await this.setState({ currentPage: pageNumber }, () => {
+      let params = new URLSearchParams(window.location.search);
+      let query = params.get('q');
+
+      this.doSearch();
+      window.history.pushState('string', 'Github Search', '?q=' + query + '&page=' + this.state.currentPage);
+    });
   };
 
   render() {
