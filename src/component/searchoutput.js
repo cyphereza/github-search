@@ -102,6 +102,10 @@ class SearchOutput extends React.Component {
     return description;
   };
 
+  handleOnClick = repoLink => {
+    window.open(repoLink);
+  };
+
   render() {
     if (this.state.responseData !== null) {
       let keyLength = this.state.responseData.items.length;
@@ -112,7 +116,13 @@ class SearchOutput extends React.Component {
           </h5>
           {this.state.responseData.items.map((resultObj, key) => {
             return (
-              <div key={key} className="hover-mouse">
+              <div
+                key={key}
+                className="hover-mouse"
+                onClick={e => {
+                  this.handleOnClick(resultObj.html_url);
+                }}
+              >
                 <div className="hover-mouse hover-mouse--on p-2">
                   <div className="row">
                     <div className="col text-primary font-weight-bold d-inline-block mb-2">
