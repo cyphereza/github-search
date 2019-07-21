@@ -39,11 +39,13 @@
 .hover-mouse .hover-mouse--on,
 .hover-mouse:hover .hover-mouse--off {
   background-color: white;
+  cursor: pointer;
 }
 
 .hover-mouse:hover .hover-mouse--on {
   background-color: rgb(245,245,245);
   border-radius: 5px;
+  cursor: pointer;
 }
 
 div {
@@ -141,4 +143,8 @@ input:-ms-input-placeholder {
     margin-top: 20px;
     font-size: 1.8em;
   }
+}
+
+.hand-pointer {
+  cursor: pointer;
 }

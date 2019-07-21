@@ -35,7 +35,7 @@ class SearchInput extends React.Component {
             onChange={this.handleChange}
           />
           <div className="input-group-append" onClick={this.handleSubmit}>
-            <span className="input-group-text bg-white border-left-0" id="basic-addon">
+            <span className="input-group-text bg-white border-left-0 hand-pointer" id="basic-addon">
               <i className="fa fa-search prefix iconColor" />
             </span>
           </div>

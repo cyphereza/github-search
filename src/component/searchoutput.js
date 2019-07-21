@@ -2,6 +2,7 @@ import React from 'react';
 import { httpService } from '../services';
 import { API } from '../constant';
 import octocat from '../assets/images/octocat.png';
+import Preview from './preview';
 
 class SearchOutput extends React.Component {
   constructor(props) {
@@ -15,6 +16,7 @@ class SearchOutput extends React.Component {
       responseData: null,
       isLoaded: false,
       mouseHover: false,
+      showRodal: [false, false, false, false, false, false, false, false, false, false],
     };
   }
 
@@ -99,8 +101,17 @@ class SearchOutput extends React.Component {
     return description;
   };
 
-  handleOnClick = repoLink => {
-    window.open(repoLink);
+  handleOnClick = (repoLink, key) => {
+    this.setState(prev => ({
+      showRodal: prev.showRodal.map((val, i) => (i === key ? true : false)),
+    }));
+    // window.open(repoLink);
+  };
+
+  handleVisible = event => {
+    this.setState(prev => ({
+      showRodal: prev.showRodal.map((val, i) => false),
+    }));
   };
 
   render() {
@@ -126,30 +137,32 @@ class SearchOutput extends React.Component {
           </h5>
           {this.state.responseData.items.map((resultObj, key) => {
             return (
-              <div
-                key={key}
-                className="hover-mouse"
-                onClick={e => {
-                  this.handleOnClick(resultObj.html_url);
-                }}
-              >
-                <div className="hover-mouse hover-mouse--on p-2">
-                  <div className="row">
-                    <div className="col text-primary font-weight-bold d-inline-block mb-2">
-                      {this.trimString(resultObj.full_name, 70)}
-                    </div>
-                    <div className="d-inline-block" style={{ width: 200 }}>
-                      {this.showLanguage(resultObj.language)}
-                      <div className="small d-inline-block greyColor" style={{ width: 100 }}>
-                        <i className="fa fa-star greyColor pr-1" />
-                        {resultObj.stargazers_count > 0 ? resultObj.stargazers_count : 0}
+              <div key={key}>
+                <div
+                  className="hover-mouse"
+                  onClick={e => {
+                    this.handleOnClick(resultObj.html_url, key);
+                  }}
+                >
+                  <div className="hover-mouse hover-mouse--on p-2">
+                    <div className="row">
+                      <div className="col text-primary font-weight-bold d-inline-block mb-2">
+                        {this.trimString(resultObj.full_name, 70)}
+                      </div>
+                      <div className="d-inline-block" style={{ width: 200 }}>
+                        {this.showLanguage(resultObj.language)}
+                        <div className="small d-inline-block greyColor" style={{ width: 100 }}>
+                          <i className="fa fa-star greyColor pr-1" />
+                          {resultObj.stargazers_count > 0 ? resultObj.stargazers_count : 0}
+                        </div>
                       </div>
                     </div>
+                    <div className="mb-4">{resultObj.description && this.trimString(resultObj.description, 500)}</div>
+                    <div className="text-muted small">Updated on {this.parseDate(resultObj.updated_at)}</div>
                   </div>
-                  <div className="mb-4">{resultObj.description && this.trimString(resultObj.description, 500)}</div>
-                  <div className="text-muted small">Updated on {this.parseDate(resultObj.updated_at)}</div>
+                  {key < 9 && key !== keyLength - 1 && <hr />}
                 </div>
-                {key < 9 && key !== keyLength - 1 && <hr />}
+                <Preview data={resultObj} show={this.state.showRodal[key]} onHide={this.handleVisible} />
               </div>
             );
           })}
