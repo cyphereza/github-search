@@ -1,75 +1,25 @@
 import React from 'react';
-import { httpService } from '../services';
-import { API } from '../constant';
 import octocat from '../assets/images/octocat.png';
+import loading from '../assets/images/loading.gif';
 import Preview from './preview';
+import { createStructuredSelector } from 'reselect';
+import { connect } from 'react-redux';
+import {
+  makeSelectResultsData,
+  makeSelectResultsTotalCount,
+  makeSelectResultsIsSearching,
+  makeSelectResultsQuery,
+} from '../redux/selectors/results';
 
 class SearchOutput extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      searchQuery: '',
-      perPage: 10,
-      currentPage: 1,
-      totalSearchResults: 0,
-      responseData: null,
-      isLoaded: false,
       mouseHover: false,
       showRodal: [false, false, false, false, false, false, false, false, false, false],
     };
   }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.searchQuery !== this.state.searchQuery && prevState.currentPage !== this.state.currentPage) {
-      this.searchRepositories();
-    }
-  }
-
-  setSearchQuery = async (searchQuery, currentPage) => {
-    await this.setState({ searchQuery, currentPage });
-    await this.searchRepositories();
-  };
-
-  searchRepositories = async () => {
-    if (this.state.searchQuery !== '' || this.state.searchQuery !== null) {
-      this.setState({ isLoaded: false });
-      var url =
-        API.endpoints.searchRepositories +
-        '?q=' +
-        this.state.searchQuery +
-        '&per_page=' +
-        this.state.perPage +
-        '&page=' +
-        this.state.currentPage;
-      let response = await httpService.get(url);
-      if (response.data.items.length === 0 && this.state.currentPage > 1) {
-        url =
-          API.endpoints.searchRepositories +
-          '?q=' +
-          this.state.searchQuery +
-          '&per_page=' +
-          this.state.perPage +
-          '&page=' +
-          1;
-        await this.setState({ currentPage: 1 }, async () => {
-          response = await httpService.get(url);
-          await this.setState({
-            responseData: response.data,
-            isLoaded: true,
-            totalSearchResults: response.data.total_count,
-          });
-          window.history.pushState('string', 'Github Search', '?q=' + this.state.searchQuery + '&page=1');
-          return;
-        });
-      }
-      await this.setState({
-        responseData: response.data,
-        isLoaded: true,
-        totalSearchResults: response.data.total_count,
-      });
-    }
-  };
 
   parseDate = unparsedDate => {
     let returnedDate = new Date(Date.parse(unparsedDate));
@@ -115,10 +65,20 @@ class SearchOutput extends React.Component {
   };
 
   render() {
+    if (this.props.isSearching === true && this.props.query !== '') {
+      return (
+        <div className="container-fluid p-0 text-center">
+          <h2 className="font-weight-bold fluid-text">Searching...</h2>
+          <br />
+          <img src={loading} alt="Loading... please wait" className="img-fluid octocat" />
+        </div>
+      );
+    }
     if (
-      (this.state.responseData === null || this.state.responseData.items.length === 0) &&
-      this.state.totalSearchResults === 0 &&
-      this.state.isLoaded === true
+      (this.props.responseData === null || this.props.responseData.length === 0) &&
+      this.props.totalResultsCount === 0 &&
+      this.props.isSearching === false &&
+      this.props.query !== ''
     ) {
       return (
         <div className="container-fluid p-0 text-center">
@@ -128,14 +88,14 @@ class SearchOutput extends React.Component {
         </div>
       );
     }
-    if (this.state.responseData !== null && this.state.isLoaded) {
-      let keyLength = this.state.responseData.items.length;
+    if (this.props.responseData !== null && this.props.isSearching === false) {
+      let keyLength = this.props.responseData.length;
       return (
         <div className="container-fluid text-left p-0">
           <h5 className="font-weight-bold border-bottom pt-3 pb-3">
-            {this.state.totalSearchResults} repository results
+            {this.props.totalResultsCount} repository results
           </h5>
-          {this.state.responseData.items.map((resultObj, key) => {
+          {this.props.responseData.map((resultObj, key) => {
             return (
               <div key={key}>
                 <div
@@ -173,4 +133,11 @@ class SearchOutput extends React.Component {
   }
 }
 
-export default SearchOutput;
+const mapStateToProps = createStructuredSelector({
+  responseData: makeSelectResultsData(),
+  totalResultsCount: makeSelectResultsTotalCount(),
+  isSearching: makeSelectResultsIsSearching(),
+  query: makeSelectResultsQuery(),
+});
+
+export default connect(mapStateToProps)(SearchOutput);

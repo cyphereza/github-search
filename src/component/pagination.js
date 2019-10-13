@@ -1,26 +1,17 @@
 import React from 'react';
+import { createStructuredSelector } from 'reselect';
+import {
+  makeSelectResultsCurrentPage,
+  makeSelectResultsTotalCount,
+  makeSelectResultsPerPage,
+  makeSelectResultsIsSearching,
+} from '../redux/selectors/results';
+import { connect } from 'react-redux';
+import * as changePageAction from '../redux/ducks/search';
 
 class Pagination extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      currentPage: 1,
-      totalSearchResults: 0,
-      perPage: 0,
-    };
-  }
-
-  setPaginationVariables = async (totalSearchResults, currentPage, perPage) => {
-    await this.setState({
-      totalSearchResults,
-      currentPage,
-      perPage,
-    });
-  };
-
   changeCurrentPage = currentPage => {
-    this.setState({ currentPage });
+    this.props.changeCurrentPage(currentPage);
   };
 
   calculatePages = (totalSearchResults, perPage) => {
@@ -29,7 +20,7 @@ class Pagination extends React.Component {
   };
 
   handlePagination = () => {
-    let maxPages = this.calculatePages(this.state.totalSearchResults, this.state.perPage);
+    let maxPages = this.calculatePages(this.props.totalCount, this.props.perPage);
     let params = new URLSearchParams(window.location.search);
     let q = params.get('q');
     let currentPage = parseInt(params.get('page'));
@@ -50,7 +41,7 @@ class Pagination extends React.Component {
           if (item === '<') {
             let calculatedKey = currentPage - 1;
             if (calculatedKey < 1) calculatedKey = 1;
-            if (calculatedKey === this.state.currentPage)
+            if (calculatedKey === this.props.currentPage)
               return (
                 <a href={url + '&page=' + calculatedKey + '#'} key={key} className="inactive">
                   {item}
@@ -60,7 +51,7 @@ class Pagination extends React.Component {
           } else if (item === '>') {
             let calculatedKey = currentPage + 1;
             if (calculatedKey > maxPages) calculatedKey = maxPages;
-            if (calculatedKey === this.state.currentPage)
+            if (calculatedKey === this.props.currentPage)
               return (
                 <a href={url + '&page=' + calculatedKey + '#'} key={key} className="inactive">
                   {item}
@@ -71,7 +62,7 @@ class Pagination extends React.Component {
             url += '&page=' + item;
           }
 
-          if (this.state.currentPage === item) {
+          if (this.props.currentPage === item) {
             return (
               <a href={url + '#'} key={key} className="active">
                 {item}
@@ -79,16 +70,16 @@ class Pagination extends React.Component {
             );
           }
           if (
-            (this.state.currentPage - item === 3 &&
+            (this.props.currentPage - item === 3 &&
               item !== 1 &&
               item !== 2 &&
-              this.state.currentPage !== 1 &&
-              this.state.currentPage !== 2) ||
-            (item - this.state.currentPage === 3 &&
+              this.props.currentPage !== 1 &&
+              this.props.currentPage !== 2) ||
+            (item - this.props.currentPage === 3 &&
               item !== maxPages &&
               item !== maxPages - 1 &&
-              this.state.currentPage !== maxPages &&
-              this.state.currentPage !== maxPages - 1)
+              this.props.currentPage !== maxPages &&
+              this.props.currentPage !== maxPages - 1)
           ) {
             return (
               <div className="pagination-dots" key={key}>
@@ -97,12 +88,10 @@ class Pagination extends React.Component {
             );
           }
           if (
-            this.state.currentPage - item === 1 ||
-            this.state.currentPage - item === 2 ||
-            // (this.state.currentPage - item === 3 && this.state.currentPage === maxPages) ||
-            item - this.state.currentPage === 1 ||
-            item - this.state.currentPage === 2 ||
-            // (item - this.state.currentPage === 3 && this.state.currentPage === 1) ||
+            this.props.currentPage - item === 1 ||
+            this.props.currentPage - item === 2 ||
+            item - this.props.currentPage === 1 ||
+            item - this.props.currentPage === 2 ||
             item === '<' ||
             item === '>' ||
             item === 1 ||
@@ -123,9 +112,23 @@ class Pagination extends React.Component {
   };
 
   render() {
-    if (this.calculatePages(this.state.totalSearchResults, this.state.perPage) === 0) return null;
+    if (this.calculatePages(this.props.totalCount, this.props.perPage) === 0 || this.props.isSearching) return null;
     else return this.handlePagination();
   }
 }
 
-export default Pagination;
+const mapStateToProps = createStructuredSelector({
+  currentPage: makeSelectResultsCurrentPage(),
+  totalCount: makeSelectResultsTotalCount(),
+  perPage: makeSelectResultsPerPage(),
+  isSearching: makeSelectResultsIsSearching(),
+});
+
+const mapDispatchToProps = {
+  changePage: changePageAction.changePage,
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Pagination);
