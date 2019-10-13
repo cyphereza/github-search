@@ -3,6 +3,8 @@ import './App.css';
 import SearchInput from './component/searchinput';
 import SearchOutput from './component/searchoutput';
 import Pagination from './component/pagination';
+import * as searchActions from './redux/ducks/search';
+import { connect } from 'react-redux';
 
 class App extends React.Component {
   constructor(props) {
@@ -16,23 +18,26 @@ class App extends React.Component {
       query: '',
       currentPage: 1,
       totalSearchResults: 0,
+      perPage: 10,
     };
   }
 
   componentDidMount = () => {
     let params = new URLSearchParams(window.location.search);
     let query = params.get('q');
+    let perPage = this.state.perPage;
 
     if (query && query !== '') {
       let currentPage = parseInt(params.get('page'));
+
       if (!currentPage || currentPage < 1) {
         currentPage = 1;
       } else if (currentPage > 100) {
         currentPage = 100;
       }
+
       this.setState({ query, currentPage }, () => {
-        this.searchInputRef.current.setSearchQuery(query, currentPage); // Set the input box to URL param's q value
-        this.doSearch();
+        this.props.startSearch({ query, currentPage, perPage });
         window.history.pushState('string', 'Github Search', '?q=' + query + '&page=' + this.state.currentPage);
       });
     }
@@ -49,15 +54,11 @@ class App extends React.Component {
   };
 
   doSearch = async () => {
-    await this.paginationRef.current.setPaginationVariables(0, 0, 10);
-    await this.searchOutputRef.current
-      .setSearchQuery(this.state.query, this.state.currentPage)
-      .then(() => {
-        this.setState({ totalSearchResults: this.searchOutputRef.current.getTotalSearchResults() });
-      })
-      .then(() => {
-        this.paginationRef.current.setPaginationVariables(this.state.totalSearchResults, this.state.currentPage, 10);
-      });
+    let query = this.state.query;
+    let currentPage = this.state.currentPage;
+    let perPage = this.state.perPage;
+
+    this.props.startSearch({ query, currentPage, perPage });
   };
 
   handlePageChange = async pageNumber => {
@@ -75,12 +76,19 @@ class App extends React.Component {
       <div className="App">
         <div className="container-fluid bg-white border p-3 mb-3">
           <SearchInput onSubmit={this.handleSubmit} ref={this.searchInputRef} />
-          <SearchOutput ref={this.searchOutputRef} />
-          <Pagination totalSearchResults={this.state.totalSearchResults} ref={this.paginationRef} />
+          <SearchOutput />
+          <Pagination />
         </div>
       </div>
     );
   }
 }
 
-export default App;
+const mapDispatchToProps = {
+  startSearch: searchActions.startSearch,
+};
+
+export default connect(
+  null,
+  mapDispatchToProps
+)(App);

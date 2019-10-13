@@ -1,9 +1,13 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Versions (changelog)
+- 0.2.0 - Uses redux, redux-saga, redux-logger and reselect
+- 0.1.0 - Basic github search UI with pagination
+
 ## Tested with
-- node 11.11.0
-- npm 6.7.0
-- yarn 1.15.2
+- node 12.11.1
+- npm 6.11.3
+- yarn 1.19.1
 
 ## How to test
 - Run `git clone https://github.com/cyphereza/github-search.git`
