@@ -5,6 +5,7 @@ import { Base64 } from 'js-base64';
 import ReactMarkdown from 'react-markdown';
 import { httpService } from '../services';
 import { API } from '../constant';
+import loading from '../assets/images/loading.gif';
 
 class Preview extends React.Component {
   constructor(props) {
@@ -15,6 +16,7 @@ class Preview extends React.Component {
     this.state = {
       data,
       readme: null,
+      doneFetch: false,
     };
   }
 
@@ -40,7 +42,7 @@ class Preview extends React.Component {
 
     if (response.status === 200) {
       // console.log(Base64.decode(response.data.content));
-      this.setState({ readme: Base64.decode(response.data.content) });
+      this.setState({ readme: Base64.decode(response.data.content), doneFetch: true });
     } else {
       console.log('Error fetching readme');
       this.setState({
@@ -83,7 +85,14 @@ class Preview extends React.Component {
             </div>
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body>{data && this.props.show && this.handleReadmeDisplay()}</Modal.Body>
+        {this.state.doneFetch && <Modal.Body>{data && this.props.show && this.handleReadmeDisplay()}</Modal.Body>}
+        {!this.state.doneFetch && (
+          <div className="container-fluid p-0 text-center">
+            <h2 className="font-weight-bold fluid-text">Loading...</h2>
+            <br />
+            <img src={loading} alt="Loading... please wait" className="img-fluid octocat" />
+          </div>
+        )}
       </Modal>
     );
   }
