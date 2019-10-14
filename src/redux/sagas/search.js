@@ -1,5 +1,5 @@
 import { takeLatest, fork, all, put } from 'redux-saga/effects';
-import { SEARCH_START, searchSuccess, searchFailed } from '../ducks/search';
+import { SEARCH_START, searchSuccess, searchFailed, changePerPage, changePage } from '../ducks/search';
 import { API } from '../../constant';
 import { httpService } from '../../services';
 
@@ -9,6 +9,9 @@ function* startSearch({ query, perPage, currentPage }) {
     let apiCall = httpService.get(url);
 
     let response;
+
+    yield put(changePerPage(perPage));
+    yield put(changePage(currentPage));
 
     yield apiCall.then(result => {
       response = result;

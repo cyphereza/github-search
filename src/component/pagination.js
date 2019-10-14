@@ -26,6 +26,10 @@ class Pagination extends React.Component {
     let currentPage = parseInt(params.get('page'));
     let numbers = [];
 
+    console.log(`Total count: ${this.props.totalCount}`);
+    console.log(`Per Page: ${this.props.perPage}`);
+    console.log(`Current Page: ${currentPage}`);
+
     if (maxPages > 100) maxPages = 100;
 
     numbers.push('<');

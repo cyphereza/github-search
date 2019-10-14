@@ -5,14 +5,12 @@ import SearchOutput from './component/searchoutput';
 import Pagination from './component/pagination';
 import * as searchActions from './redux/ducks/search';
 import { connect } from 'react-redux';
+import { makeSelectResultsCurrentPage, makeSelectResultsQuery } from './redux/selectors/results';
+import { createStructuredSelector } from 'reselect';
 
 class App extends React.Component {
   constructor(props) {
     super(props);
-
-    this.searchInputRef = React.createRef();
-    this.searchOutputRef = React.createRef();
-    this.paginationRef = React.createRef();
 
     this.state = {
       query: '',
@@ -25,7 +23,6 @@ class App extends React.Component {
   componentDidMount = () => {
     let params = new URLSearchParams(window.location.search);
     let query = params.get('q');
-    let perPage = this.state.perPage;
 
     if (query && query !== '') {
       let currentPage = parseInt(params.get('page'));
@@ -36,46 +33,35 @@ class App extends React.Component {
         currentPage = 100;
       }
 
-      this.setState({ query, currentPage }, () => {
-        this.props.startSearch({ query, currentPage, perPage });
-        window.history.pushState('string', 'Github Search', '?q=' + query + '&page=' + this.state.currentPage);
-      });
+      this.doSearch(query, currentPage);
     }
   };
 
-  handleSubmit = async query => {
+  handleSubmit = query => {
+    console.log(query + ' submitted');
     if (query === '') {
       return;
     }
-    this.setState({ query, currentPage: 1 }, () => {
-      this.doSearch();
-      window.history.pushState('string', 'Github Search', '?q=' + query + '&page=' + this.state.currentPage);
-    });
+    this.doSearch(query, 1);
+    window.history.pushState('string', 'Github Search', '?q=' + query + '&page=' + 1);
   };
 
-  doSearch = async () => {
-    let query = this.state.query;
-    let currentPage = this.state.currentPage;
-    let perPage = this.state.perPage;
+  doSearch = (query, currentPage) => {
+    let perPage = this.props.perPage;
+
+    if (perPage === 0 || typeof perPage === 'undefined') {
+      perPage = 10;
+      this.props.changePerPage(perPage);
+    }
 
     this.props.startSearch({ query, currentPage, perPage });
-  };
-
-  handlePageChange = async pageNumber => {
-    await this.setState({ currentPage: pageNumber }, () => {
-      let params = new URLSearchParams(window.location.search);
-      let query = params.get('q');
-
-      this.doSearch();
-      window.history.pushState('string', 'Github Search', '?q=' + query + '&page=' + this.state.currentPage);
-    });
   };
 
   render() {
     return (
       <div className="App">
         <div className="container-fluid bg-white border p-3 mb-3">
-          <SearchInput onSubmit={this.handleSubmit} ref={this.searchInputRef} />
+          <SearchInput onSubmit={this.handleSubmit} />
           <SearchOutput />
           <Pagination />
         </div>
@@ -84,11 +70,18 @@ class App extends React.Component {
   }
 }
 
+const mapStateToProps = createStructuredSelector({
+  currentPage: makeSelectResultsCurrentPage(),
+  query: makeSelectResultsQuery(),
+});
+
 const mapDispatchToProps = {
   startSearch: searchActions.startSearch,
+  changePage: searchActions.changePage,
+  changePerPage: searchActions.changePerPage,
 };
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps
 )(App);
